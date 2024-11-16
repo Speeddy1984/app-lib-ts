@@ -1,0 +1,65 @@
+<%- include('../port/layout-start', { title: book.title }) %>
+
+<div class="card my-4">
+  <div class="card-body">
+    <h2 class="card-title"><%= book.title %></h2>
+    <p class="card-text"><strong>Описание:</strong> <%= book.description %></p>
+    <p class="card-text"><strong>Автор:</strong> <%= book.authors %></p>
+    <p class="card-text">
+      <strong>Избранное:</strong> <%= book.favorite ? 'Да' : 'Нет' %>
+    </p>
+    <p class="card-text"><strong>Просмотры:</strong> <%= counter %></p>
+    <a href="/books" class="btn btn-secondary">Назад к списку</a>
+    <a href="/books/<%= book._id %>/edit" class="btn btn-primary"
+      >Редактировать</a
+    >
+  </div>
+</div>
+
+<div class="card my-4">
+  <div class="card-body">
+    <h3 class="card-title">Комментарии</h3>
+    <ul id="comments-list" class="list-group">
+    </ul>
+
+    <form id="comment-form" class="mt-3">
+      <div class="form-group">
+        <label for="comment">Оставить комментарий:</label>
+        <textarea id="comment" class="form-control" rows="3" required></textarea>
+      </div>
+      <button type="submit" class="btn btn-success mt-2">Отправить</button>
+    </form>
+  </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io();
+
+  document.getElementById('comment-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    const commentText = document.getElementById('comment').value;
+
+    // Отправляем комментарий на сервер
+    socket.emit('new_comment', {
+      bookId: '<%= book._id %>',
+      comment: commentText
+    });
+
+    // Очищаем поле ввода комментария
+    document.getElementById('comment').value = '';
+  });
+
+  // Получаем и отображаем новый комментарий
+  socket.on('broadcast_comment', function (data) {
+    if (data.bookId === '<%= book._id %>') {
+      const commentsList = document.getElementById('comments-list');
+      const newComment = document.createElement('li');
+      newComment.classList.add('list-group-item');
+      newComment.textContent = data.comment;
+      commentsList.appendChild(newComment);
+    }
+  });
+</script>
+
+<%- include('../port/layout-end') %>

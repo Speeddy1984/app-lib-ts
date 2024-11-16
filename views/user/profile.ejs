@@ -1,0 +1,16 @@
+<%- include('../port/layout-start', { title: title }) %>
+
+<h1 class="my-4"><%= title %></h1>
+
+<div class="card">
+  <div class="card-body">
+    <h5 class="card-title">Привет, <%= user.name %>!</h5>
+    <p class="card-text">
+      <strong>Ваш Email:</strong> <%= user.email %><br>
+    </p>
+  </div>
+</div>
+
+<a href="/api/user/logout" class="btn btn-danger mt-3">Выйти из профиля</a>
+
+<%- include('../port/layout-end') %>

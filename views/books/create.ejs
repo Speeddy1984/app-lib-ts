@@ -1,0 +1,49 @@
+<%- include('../port/layout-start', { title: title }) %>
+
+<h1 class="my-4"><%= title %></h1>
+<form action="/books/create" method="POST">
+  <div class="mb-3">
+    <label for="title" class="form-label">Название</label>
+    <input type="text" class="form-control" id="title" name="title" required />
+  </div>
+  <div class="mb-3">
+    <label for="description" class="form-label">Описание</label>
+    <textarea
+      class="form-control"
+      id="description"
+      name="description"
+    ></textarea>
+  </div>
+  <div class="mb-3">
+    <label for="authors" class="form-label">Автор</label>
+    <input
+      type="text"
+      class="form-control"
+      id="authors"
+      name="authors"
+      required
+    />
+  </div>
+  <div class="form-check mb-3">
+    <input
+      class="form-check-input"
+      type="checkbox"
+      id="favorite"
+      name="favorite"
+      value="true"
+    />
+    <label class="form-check-label" for="favorite">Избранное</label>
+  </div>
+  <div class="mb-3">
+    <label for="fileCover" class="form-label">Обложка</label>
+    <input type="text" class="form-control" id="fileCover" name="fileCover" />
+  </div>
+  <div class="mb-3">
+    <label for="fileName" class="form-label">Имя файла</label>
+    <input type="text" class="form-control" id="fileName" name="fileName" />
+  </div>
+  <button type="submit" class="btn btn-success">Создать</button>
+  <a href="/books" class="btn btn-secondary">Назад к списку</a>
+</form>
+
+<%- include('../port/layout-end') %>
