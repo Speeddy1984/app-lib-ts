@@ -1,13 +1,13 @@
 const express = require("express");
 const router = express.Router();
-const axios = require("axios"); // Для отправки запросов к микросервису счётчика
+const container = require("../ioc-container"); // Подключаем IoC-контейнер
+const BooksRepository = require("../repositories/BooksRepository");
 
 // Главная страница с выводом списка книг
 router.get("/", async (req, res) => {
   try {
-    // Получаем данные из apiBooks
-    const response = await axios.get('http://localhost:3000/api/books');
-    const books = response.data;
+    const repo = container.get(BooksRepository); // Получаем BooksRepository из контейнера
+    const books = await repo.getBooks(); // Получаем список книг
 
     // Рендерим страницу с книгами, передавая данные
     res.render("index", { title: "Список книг", books });
@@ -25,11 +25,11 @@ router.get("/create", (req, res) => {
 // Обработчик создания новой книги
 router.post("/create", async (req, res) => {
   try {
-    // Отправляем данные формы в apiBooks для создания новой книги
-    await axios.post("http://localhost:3000/api/books", req.body);
+    const repo = container.get(BooksRepository);
+    await repo.createBook(req.body); // Создаём новую книгу через репозиторий
     res.redirect("/books");
   } catch (err) {
-    console.error("Ошибка при создании книги через API:", err);
+    console.error("Ошибка при создании книги:", err);
     res.render("errors/5XX", { title: "Ошибка", message: "Не удалось создать книгу" });
   }
 });
@@ -38,9 +38,8 @@ router.post("/create", async (req, res) => {
 router.get("/:id", async (req, res) => {
   const { id } = req.params;
   try {
-    // Запрос к apiBooks для получения книги по ID
-    const bookResponse = await axios.get(`http://localhost:3000/api/books/${id}`);
-    const book = bookResponse.data;
+    const repo = container.get(BooksRepository);
+    const book = await repo.getBook(id); // Получаем книгу по ID
 
     // Увеличение счётчика просмотров через микросервис
     await axios.post(`http://counter-service:4000/counter/${book._id}/incr`);
@@ -52,7 +51,7 @@ router.get("/:id", async (req, res) => {
     // Отображаем страницу с книгой и значением счётчика просмотров
     res.render("books/view", { book, counter });
   } catch (err) {
-    console.error("Ошибка получения книги через API или счётчика:", err);
+    console.error("Ошибка получения книги или счётчика:", err);
     res.render("errors/404", { title: "Книга не найдена" });
   }
 });
@@ -61,13 +60,12 @@ router.get("/:id", async (req, res) => {
 router.get("/:id/edit", async (req, res) => {
   const { id } = req.params;
   try {
-    // Получаем книгу из apiBooks для отображения в форме
-    const response = await axios.get(`http://localhost:3000/api/books/${id}`);
-    const book = response.data;
+    const repo = container.get(BooksRepository);
+    const book = await repo.getBook(id); // Получаем книгу для редактирования
 
     res.render("books/update", { title: "Редактировать книгу", book });
   } catch (err) {
-    console.error("Ошибка при получении книги через API:", err);
+    console.error("Ошибка при получении книги:", err);
     res.render("errors/404", { title: "Книга не найдена" });
   }
 });
@@ -76,11 +74,11 @@ router.get("/:id/edit", async (req, res) => {
 router.post("/:id/edit", async (req, res) => {
   const { id } = req.params;
   try {
-    // Отправляем обновлённые данные книги в apiBooks
-    await axios.put(`http://localhost:3000/api/books/${id}`, req.body);
+    const repo = container.get(BooksRepository);
+    await repo.updateBook(id, req.body); // Обновляем данные книги
     res.redirect(`/books/${id}`);
   } catch (err) {
-    console.error("Ошибка при обновлении книги через API:", err);
+    console.error("Ошибка при обновлении книги:", err);
     res.render("errors/500", { title: "Ошибка", message: "Не удалось обновить книгу" });
   }
 });
