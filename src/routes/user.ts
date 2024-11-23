@@ -1,20 +1,22 @@
-const express = require("express");
-const router = express.Router();
-const passport = require("passport");
-const User = require("../models/user");
+import { Request, Response, Router, NextFunction } from "express";
+import passport from "passport";
+import User from "../models/user";
+import IUser from "../interfaces/IUser";
+
+const router = Router();
 
 // Страница логина
-router.get("/login", (req, res) => {
+router.get("/login", (req: Request, res: Response) => {
   res.render("user/login", { title: "Вход в профиль" });
 });
 
 // Страница регистрации
-router.get("/signup", (req, res) => {
+router.get("/signup", (req: Request, res: Response) => {
   res.render("user/signup", { title: "Регистрация" });
 });
 
 // Профиль пользователя
-router.get("/me", (req, res) => {
+router.get("/me", (req: Request, res: Response) => {
   if (!req.isAuthenticated()) {
     return res.redirect("/api/user/login");
   }
@@ -23,8 +25,8 @@ router.get("/me", (req, res) => {
 });
 
 // POST запрос для регистрации
-router.post("/signup", async (req, res) => {
-  const { email, password, name } = req.body;
+router.post("/signup", async (req: Request, res: Response) => {
+  const { email, password, name }: Partial<IUser> = req.body;
 
   try {
     // Проверка, существует ли пользователь с таким email
@@ -47,8 +49,8 @@ router.post("/signup", async (req, res) => {
 });
 
 // POST запрос для логина
-router.post("/login", (req, res, next) => {
-  passport.authenticate("local", (err, user, info) => {
+router.post("/login", (req: Request, res: Response, next: NextFunction) => {
+  passport.authenticate("local", (err: Error, user: IUser, info: { message?: string }) => {
     if (err) {
       return res.status(500).send("Внутренняя ошибка сервера");
     }
@@ -65,7 +67,7 @@ router.post("/login", (req, res, next) => {
 });
 
 // Запрос Logout
-router.get("/logout", (req, res) => {
+router.get("/logout", (req: Request, res: Response, next: NextFunction) => {
   req.logout((err) => {
     if (err) {
       return next(err);
@@ -74,4 +76,4 @@ router.get("/logout", (req, res) => {
   });
 });
 
-module.exports = router;
+export default router;

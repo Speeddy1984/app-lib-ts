@@ -1,5 +1,5 @@
 import { Container } from 'inversify';
-import { BooksRepository } from './repositories/BooksRepository';
+import { BooksRepository } from '../repositories/BooksRepository';
 
 const container = new Container();
 
